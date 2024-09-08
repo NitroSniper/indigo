@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	_ "embed" // embed is not used directly but for it's macro
 	"fmt"
 	"html/template"
 	"log"
@@ -14,24 +15,29 @@ import (
 	"github.com/yuin/goldmark/renderer/html"
 )
 
-func hello(w http.ResponseWriter, req *http.Request) {
-	buf := foo()
+//go:embed assets/template/base.html
+var base_template string
 
-	templ := template.Must(template.New("index").Parse(`
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<title>Exmpale</title>
-	</head>
-	<body>
-		{{.Markdown}}
-	</body>
-	</html>
-`))
+//go:embed assets/flavor/github.css
+var flavor string
+
+func hello(w http.ResponseWriter, req *http.Request) {
+	markdown := foo()
+	boxing := `
+	.markdown-body {
+		padding: 64px;
+	}
+	body {
+	  margin: 0;
+	}
+	`
+	templ := template.Must(template.New("index").Parse(base_template))
 	data := struct {
 		Markdown template.HTML
+		Flavor   template.CSS
 	}{
-		Markdown: template.HTML(buf.Bytes()),
+		Markdown: template.HTML(markdown.Bytes()),
+		Flavor:   template.CSS(flavor + boxing),
 	}
 
 	if err := templ.Execute(w, data); err != nil {
@@ -59,7 +65,6 @@ func foo() bytes.Buffer {
 		),
 		goldmark.WithRendererOptions(
 			html.WithHardWraps(),
-			html.WithXHTML(),
 		),
 	)
 	var buf bytes.Buffer
