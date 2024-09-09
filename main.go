@@ -145,7 +145,7 @@ func reader(ws *websocket.Conn) {
 //go:embed assets/template/base.html
 var base_template string
 
-//go:embed assets/flavor/github.css
+//go:embed assets/flavor/pico.css
 var flavor string
 
 func preview(w http.ResponseWriter, r *http.Request) {

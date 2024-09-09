@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>WebSocket Example</title>
+		<style>{{.Flavor}}</style>
+    </head>
+    <body>
+        <div class="markdown-body" id="ws-content">{{.Markdown}}</div>
+        <script type="text/javascript">
+            (function() {
+                let md = document.getElementById("ws-content");
+                let ws = new WebSocket("ws://{{.Host}}/ws?lastMod={{.LastMod}}");
+                ws.onclose = function(evt) {
+                    md.textContent = 'Connection closed';
+                }
+                ws.onmessage = function(evt) {
+                    console.log('file updated');
+                    md.innerHTML = evt.data;
+                }
+            })();
+        </script>
+    </body>
+</html>
