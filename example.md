@@ -1,6 +1,6 @@
 # Cargo
 
-Cargo downloads your Rust project’s dependencies and compiles your project.
+Cargo downloads your Rust project’s dependencies and compiles your project. fo
 
 **To start using Cargo**, learn more at [The Cargo Book].
 

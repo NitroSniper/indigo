@@ -18,54 +18,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//go:embed assets/template/base.html
-var base_template string
-
-//go:embed assets/flavor/github.css
-var flavor string
-
-func preview(w http.ResponseWriter, r *http.Request) {
-	markdown := foo()
-	_ = markdown
-	boxing := `
-	.markdown-body {
-		padding: 64px;
-	}
-	body {
-	  margin: 0;
-	}
-	`
-	templ := template.Must(template.New("index").Parse(base_template))
-
-	buf, lastMod, err := readFileIfModified("./example.txt", time.Time{})
-	if err != nil {
-		buf = []byte(err.Error())
-		lastMod = time.Unix(0, 0)
-	}
-	data := struct {
-		// Markdown template.HTML
-		Flavor  template.CSS
-		Data    string
-		Host    string
-		LastMod string
-	}{
-		// Markdown: template.HTML(markdown.Bytes()),
-		Flavor:  template.CSS(flavor + boxing),
-		Data:    string(buf),
-		Host:    r.Host,
-		LastMod: strconv.FormatInt(lastMod.UnixNano(), 16),
-	}
-
-	if err := templ.Execute(w, data); err != nil {
-		panic(err)
-	}
-}
-
-func foo() bytes.Buffer {
-	source, err := os.ReadFile("./example.md")
-	if err != nil {
-		panic(err)
-	}
+func MdToHtml(source []byte) []byte {
 	md := goldmark.New(
 		goldmark.WithExtensions(extension.GFM),
 		goldmark.WithParserOptions(
@@ -79,7 +32,7 @@ func foo() bytes.Buffer {
 	if err := md.Convert(source, &buf); err != nil {
 		panic(err)
 	}
-	return buf
+	return buf.Bytes()
 }
 
 var upgrader = websocket.Upgrader{
@@ -141,24 +94,24 @@ func writer(ws *websocket.Conn, lastMod time.Time) {
 		select {
 
 		case <-fileTicker.C:
-			var buf []byte
+			var md []byte
 			var err error
-
-			buf, lastMod, err = readFileIfModified("./example.txt", lastMod)
+			md, lastMod, err = readFileIfModified("./example.md", lastMod)
 			//
 			if err != nil {
 				if s := err.Error(); s != lastErr {
 					lastErr = s
-					buf = []byte(s)
+					md = []byte(s)
 				}
 			} else {
 				lastErr = ""
+				md = MdToHtml(md)
 			}
 
-			if buf != nil {
+			if md != nil {
 				ws.SetWriteDeadline(time.Now().Add(WAITING_PONG))
 				// don't know what writeMessage does need to look into it
-				if err := ws.WriteMessage(websocket.TextMessage, buf); err != nil {
+				if err := ws.WriteMessage(websocket.TextMessage, md); err != nil {
 					return
 				}
 			}
@@ -186,6 +139,49 @@ func reader(ws *websocket.Conn) {
 		if _, _, err := ws.ReadMessage(); err != nil {
 			break
 		}
+	}
+}
+
+//go:embed assets/template/base.html
+var base_template string
+
+//go:embed assets/flavor/github.css
+var flavor string
+
+func preview(w http.ResponseWriter, r *http.Request) {
+	boxing := `
+	.markdown-body {
+		padding: 64px;
+	}
+	body {
+	  margin: 0;
+	}
+	`
+	templ := template.Must(template.New("index").Parse(base_template))
+
+	md, lastMod, err := readFileIfModified("./example.md", time.Time{})
+	if err != nil {
+		md = []byte(err.Error())
+		lastMod = time.Unix(0, 0)
+	} else {
+		md = MdToHtml(md)
+	}
+	data := struct {
+		// Markdown template.HTML
+		Flavor   template.CSS
+		Markdown template.HTML
+		Host     string
+		LastMod  string
+	}{
+		// Markdown: template.HTML(markdown.Bytes()),
+		Flavor:   template.CSS(flavor + boxing),
+		Markdown: template.HTML(md),
+		Host:     r.Host,
+		LastMod:  strconv.FormatInt(lastMod.UnixNano(), 16),
+	}
+
+	if err := templ.Execute(w, data); err != nil {
+		panic(err)
 	}
 }
 
