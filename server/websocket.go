@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"embed"
 	_ "embed" // embed is not used directly but for its macro
 	"html/template"
 	"log"
@@ -40,7 +41,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func (config *ServerConfig) serveWs(w http.ResponseWriter, r *http.Request) {
+func (config *serverConfig) serveWs(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		if _, ok := err.(websocket.HandshakeError); !ok {
@@ -63,7 +64,6 @@ const (
 	PING_PERIOD = WAITING_PONG * 9 / 10
 
 	// Poll file for any changes
-	FILE_TIMEOUT = 1 * time.Second
 )
 
 func readFileIfModified(filename string, lastMod time.Time) ([]byte, time.Time, error) {
@@ -81,10 +81,10 @@ func readFileIfModified(filename string, lastMod time.Time) ([]byte, time.Time, 
 	return p, fi.ModTime(), nil
 }
 
-func (config *ServerConfig) writer(ws *websocket.Conn, lastMod time.Time) {
+func (config *serverConfig) writer(ws *websocket.Conn, lastMod time.Time) {
 	lastErr := ""
 	pingTicker := time.NewTicker(PING_PERIOD)
-	fileTicker := time.NewTicker(FILE_TIMEOUT)
+	fileTicker := time.NewTicker(config.fileTimeout)
 	defer func() {
 		pingTicker.Stop()
 		fileTicker.Stop()
@@ -96,7 +96,7 @@ func (config *ServerConfig) writer(ws *websocket.Conn, lastMod time.Time) {
 		case <-fileTicker.C:
 			var md []byte
 			var err error
-			md, lastMod, err = readFileIfModified(config.Name, lastMod)
+			md, lastMod, err = readFileIfModified(config.name, lastMod)
 			//
 			if err != nil {
 				if s := err.Error(); s != lastErr {
@@ -145,10 +145,10 @@ func reader(ws *websocket.Conn) {
 //go:embed assets/template/base.html
 var base_template string
 
-//go:embed assets/flavor/pico.css
-var flavor string
+//go:embed assets/flavor
+var flavors embed.FS
 
-func (config *ServerConfig) preview(w http.ResponseWriter, r *http.Request) {
+func (config *serverConfig) preview(w http.ResponseWriter, r *http.Request) {
 	boxing := `
 	.markdown-body {
 		padding: 64px;
@@ -159,7 +159,7 @@ func (config *ServerConfig) preview(w http.ResponseWriter, r *http.Request) {
 	`
 	templ := template.Must(template.New("index").Parse(base_template))
 
-	md, lastMod, err := readFileIfModified(config.Name, time.Time{})
+	md, lastMod, err := readFileIfModified(config.name, time.Time{})
 	if err != nil {
 		md = []byte(err.Error())
 		lastMod = time.Unix(0, 0)
@@ -174,7 +174,7 @@ func (config *ServerConfig) preview(w http.ResponseWriter, r *http.Request) {
 		LastMod  string
 	}{
 		// Markdown: template.HTML(markdown.Bytes()),
-		Flavor:   template.CSS(flavor + boxing),
+		Flavor:   template.CSS(config.flavor + boxing),
 		Markdown: template.HTML(md),
 		Host:     r.Host,
 		LastMod:  strconv.FormatInt(lastMod.UnixNano(), 16),
@@ -185,11 +185,28 @@ func (config *ServerConfig) preview(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type ServerConfig struct {
-	Name string
+type serverConfig struct {
+	name        string
+	fileTimeout time.Duration
+	flavor      string
 }
 
-func (config *ServerConfig) HostServer() {
+func NewMarkdownServer() serverConfig {
+	flavor, err := flavors.ReadFile("assets/flavor/github.css")
+
+	if err != nil {
+		panic(err)
+	}
+
+	return serverConfig{
+		name:        "./example.md",
+		fileTimeout: 1 * time.Second,
+		flavor:      string(flavor),
+	}
+
+}
+
+func (config *serverConfig) HostServer() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /ws", config.serveWs)
 	mux.HandleFunc("GET /", config.preview)

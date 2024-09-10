@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	config := server.ServerConfig{Name: "./example.md"}
+	config := server.NewMarkdownServer()
 
 	config.HostServer()
 }
