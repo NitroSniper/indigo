@@ -1,3 +1,14 @@
+/*
+Package flavors provides an enumeration of builtin CSS themes
+and a method to retrieve the css.
+
+Source of Themes:
+
+  - GitHub
+    https://github.com/sindresorhus/github-markdown-css
+  - Pico
+    picocss.com (red classless theme)
+*/
 package flavors
 
 import _ "embed"

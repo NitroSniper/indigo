@@ -6,6 +6,5 @@ import (
 
 func main() {
 	config := server.NewMarkdownServer()
-
 	config.HostServer()
 }

@@ -1,3 +1,6 @@
+// Package server provides a web server that serves Markdown content converted to HTML
+// over WebSocket connections. It supports live updates to Markdown files when modified
+// and applies different CSS themes based on the flavor configuration.
 package server
 
 import (
@@ -61,8 +64,6 @@ const (
 	WAITING_PONG = 60 * time.Second
 	// Ping need to be less than pong so it can ping pong...
 	PING_PERIOD = WAITING_PONG * 9 / 10
-
-	// Poll file for any changes
 )
 
 func readFileIfModified(filename string, lastMod time.Time) ([]byte, time.Time, error) {
@@ -142,18 +143,13 @@ func reader(ws *websocket.Conn) {
 }
 
 //go:embed base.html
-var base_template string
+var base_html string
+
+//go:embed base.css
+var base_css string
 
 func (config *serverConfig) preview(w http.ResponseWriter, r *http.Request) {
-	boxing := `
-	.markdown-body {
-		padding: 64px;
-	}
-	body {
-	  margin: 0;
-	}
-	`
-	templ := template.Must(template.New("index").Parse(base_template))
+	templ := template.Must(template.New("index").Parse(base_html))
 
 	md, lastMod, err := readFileIfModified(config.name, time.Time{})
 	if err != nil {
@@ -163,14 +159,12 @@ func (config *serverConfig) preview(w http.ResponseWriter, r *http.Request) {
 		md = mdToHtml(md)
 	}
 	data := struct {
-		// Markdown template.HTML
 		Flavor   template.CSS
 		Markdown template.HTML
 		Host     string
 		LastMod  string
 	}{
-		// Markdown: template.HTML(markdown.Bytes()),
-		Flavor:   template.CSS(config.flavor.GetCss() + boxing),
+		Flavor:   template.CSS(config.flavor.GetCss() + base_css),
 		Markdown: template.HTML(md),
 		Host:     r.Host,
 		LastMod:  strconv.FormatInt(lastMod.UnixNano(), 16),
@@ -185,6 +179,7 @@ type serverConfig struct {
 	name        string
 	fileTimeout time.Duration
 	flavor      flavors.Enum
+	port        string
 }
 
 func NewMarkdownServer() serverConfig {
@@ -192,6 +187,7 @@ func NewMarkdownServer() serverConfig {
 		name:        "./example.md",
 		fileTimeout: 1 * time.Second,
 		flavor:      flavors.Pico,
+		port:        ":8000",
 	}
 }
 
@@ -199,5 +195,6 @@ func (config *serverConfig) HostServer() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /ws", config.serveWs)
 	mux.HandleFunc("GET /", config.preview)
-	log.Fatal(http.ListenAndServe(":8000", mux))
+
+	log.Fatal(http.ListenAndServe(config.port, mux))
 }

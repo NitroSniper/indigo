@@ -19,6 +19,7 @@
         utilities = with pkgs; [
           gopls
           go
+          gotools
         ];
       in
       {
