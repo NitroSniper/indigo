@@ -2,8 +2,7 @@ package server
 
 import (
 	"bytes"
-	"embed"
-	_ "embed" // embed is not used directly but for its macro
+	_ "embed"
 	"html/template"
 	"log"
 	"net/http"
@@ -11,12 +10,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/NitroSniper/indigo/server/flavors"
+	"github.com/gorilla/websocket"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
-
-	"github.com/gorilla/websocket"
 )
 
 func mdToHtml(source []byte) []byte {
@@ -142,11 +141,8 @@ func reader(ws *websocket.Conn) {
 	}
 }
 
-//go:embed assets/template/base.html
+//go:embed base.html
 var base_template string
-
-//go:embed assets/flavor
-var flavors embed.FS
 
 func (config *serverConfig) preview(w http.ResponseWriter, r *http.Request) {
 	boxing := `
@@ -174,7 +170,7 @@ func (config *serverConfig) preview(w http.ResponseWriter, r *http.Request) {
 		LastMod  string
 	}{
 		// Markdown: template.HTML(markdown.Bytes()),
-		Flavor:   template.CSS(config.flavor + boxing),
+		Flavor:   template.CSS(config.flavor.GetCss() + boxing),
 		Markdown: template.HTML(md),
 		Host:     r.Host,
 		LastMod:  strconv.FormatInt(lastMod.UnixNano(), 16),
@@ -188,22 +184,15 @@ func (config *serverConfig) preview(w http.ResponseWriter, r *http.Request) {
 type serverConfig struct {
 	name        string
 	fileTimeout time.Duration
-	flavor      string
+	flavor      flavors.Enum
 }
 
 func NewMarkdownServer() serverConfig {
-	flavor, err := flavors.ReadFile("assets/flavor/github.css")
-
-	if err != nil {
-		panic(err)
-	}
-
 	return serverConfig{
 		name:        "./example.md",
 		fileTimeout: 1 * time.Second,
-		flavor:      string(flavor),
+		flavor:      flavors.Pico,
 	}
-
 }
 
 func (config *serverConfig) HostServer() {
