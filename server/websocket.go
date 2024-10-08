@@ -182,7 +182,16 @@ type serverConfig struct {
 	port        string
 }
 
-func NewMarkdownServer() serverConfig {
+func NewMarkdownServer(n string, t time.Duration, f flavors.Enum, p string) serverConfig {
+	return serverConfig{
+		name:        n,
+		fileTimeout: t,
+		flavor:      f,
+		port:        p,
+	}
+}
+
+func ExampleMarkdownServer() serverConfig {
 	return serverConfig{
 		name:        "./example.md",
 		fileTimeout: 1 * time.Second,
@@ -191,7 +200,7 @@ func NewMarkdownServer() serverConfig {
 	}
 }
 
-func (config *serverConfig) HostServer() {
+func (config serverConfig) HostServer() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /ws", config.serveWs)
 	mux.HandleFunc("GET /", config.preview)

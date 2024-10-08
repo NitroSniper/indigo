@@ -22,9 +22,10 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/NitroSniper/indigo/server"
+	"github.com/NitroSniper/indigo/server/flavors"
 	"github.com/spf13/cobra"
 )
 
@@ -39,15 +40,19 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		fmt.Println("serve called")
-		config := server.NewMarkdownServer()
-		config.HostServer()
+		server.NewMarkdownServer("./example.md", time.Millisecond, flavors.GitHub, port).HostServer()
 	},
 }
 
+// flags
+var (
+	port string
+)
+
 func init() {
 	rootCmd.AddCommand(serveCmd)
+
+	serveCmd.Flags().StringVarP(&port, "port", "p", ":8000", "Port number to host the server on")
 
 	// Here you will define your flags and configuration settings.
 
