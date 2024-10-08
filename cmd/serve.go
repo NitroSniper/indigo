@@ -27,6 +27,7 @@ import (
 	"github.com/NitroSniper/indigo/server"
 	"github.com/NitroSniper/indigo/server/flavors"
 	"github.com/spf13/cobra"
+	"strconv"
 )
 
 // serveCmd represents the serve command
@@ -39,20 +40,27 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		server.NewMarkdownServer("./example.md", time.Millisecond, flavors.GitHub, port).HostServer()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		duration, err := time.ParseDuration(interval)
+		if err != nil {
+			return err
+		}
+		server.NewMarkdownServer("./example.md", duration, flavors.GitHub, ":"+strconv.Itoa(port)).HostServer()
+		return nil
 	},
 }
 
 // flags
 var (
-	port string
+	port     int
+	interval string
 )
 
 func init() {
 	rootCmd.AddCommand(serveCmd)
 
-	serveCmd.Flags().StringVarP(&port, "port", "p", ":8000", "Port number to host the server on")
+	serveCmd.Flags().IntVarP(&port, "port", "p", 8000, "Port number to host the server on")
+	serveCmd.Flags().StringVarP(&interval, "interval", "i", "1s", "Poll the file for changes at specified interval (e.g., 1s, 500ms, 2s)")
 
 	// Here you will define your flags and configuration settings.
 
