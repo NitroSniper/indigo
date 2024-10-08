@@ -22,12 +22,17 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"time"
+
+	"strconv"
 
 	"github.com/NitroSniper/indigo/server"
 	"github.com/NitroSniper/indigo/server/flavors"
 	"github.com/spf13/cobra"
-	"strconv"
+	"github.com/thediveo/enumflag/v2"
+
+	"os"
 )
 
 // serveCmd represents the serve command
@@ -40,12 +45,24 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	Args: cobra.MatchAll(cobra.MinimumNArgs(1), func(cmd *cobra.Command, args []string) error {
+		path := args[0]
+		stat, err := os.Stat(path)
+		if os.IsNotExist(err) {
+			return err
+		}
+		if stat.IsDir() {
+			return fmt.Errorf("serve %s: is a directory, currently not supported", path)
+		} else {
+			return nil
+		}
+	}),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		duration, err := time.ParseDuration(interval)
 		if err != nil {
 			return err
 		}
-		server.NewMarkdownServer("./example.md", duration, flavors.GitHub, ":"+strconv.Itoa(port)).HostServer()
+		server.NewMarkdownServer("./example.md", duration, flavor, ":"+strconv.Itoa(port)).HostServer()
 		return nil
 	},
 }
@@ -54,6 +71,12 @@ to quickly create a Cobra application.`,
 var (
 	port     int
 	interval string
+
+	flavorsIds = map[flavors.Enum][]string{
+		flavors.GitHub: {"github"},
+		flavors.Pico:   {"pico"},
+	}
+	flavor flavors.Enum
 )
 
 func init() {
@@ -61,6 +84,11 @@ func init() {
 
 	serveCmd.Flags().IntVarP(&port, "port", "p", 8000, "Port number to host the server on")
 	serveCmd.Flags().StringVarP(&interval, "interval", "i", "1s", "Poll the file for changes at specified interval (e.g., 1s, 500ms, 2s)")
+	serveCmd.Flags().VarP(
+		enumflag.New(&flavor, "string", flavorsIds, enumflag.EnumCaseInsensitive),
+		"flavor", "f",
+		"CSS theme of markdown file; can be 'github' or 'pico'",
+	)
 
 	// Here you will define your flags and configuration settings.
 
