@@ -62,7 +62,7 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			return err
 		}
-		server.NewMarkdownServer("./example.md", duration, flavor, ":"+strconv.Itoa(port)).HostServer()
+		server.NewMarkdownServer(args[0], duration, flavor, ":"+strconv.Itoa(port)).HostServer()
 		return nil
 	},
 }

@@ -1,127 +1,247 @@
-# Cargo
 
-Cargo downloads your Rust project’s dependencies and compiles your project.
+---
+__Advertisement :)__
 
-**To start using Cargo**, learn more at [The Cargo Book].
+- __[pica](https://nodeca.github.io/pica/demo/)__ - high quality and fast image
+  resize in browser.
+- __[babelfish](https://github.com/nodeca/babelfish/)__ - developer friendly
+  i18n with plurals support and easy syntax.
 
-**To start developing Cargo itself**, read the [Cargo Contributor Guide].
+You will like those projects!
 
-[The Cargo Book]: https://doc.rust-lang.org/cargo/
-[Cargo Contributor Guide]: https://rust-lang.github.io/cargo/contrib/
+---
 
-## Code Status
+# h1 Heading 8-)
+## h2 Heading
+### h3 Heading
+#### h4 Heading
+##### h5 Heading
+###### h6 Heading
 
-[![CI](https://github.com/rust-lang/cargo/actions/workflows/main.yml/badge.svg?branch=auto-cargo)](https://github.com/rust-lang/cargo/actions/workflows/main.yml)
 
-Code documentation: <https://doc.rust-lang.org/nightly/nightly-rustc/cargo/>
+## Horizontal Rules
 
-## Installing Cargo
+___
 
-Cargo is distributed by default with Rust, so if you've got `rustc` installed
-locally you probably also have `cargo` installed locally.
+---
 
-## Compiling from Source
+***
 
-### Requirements
 
-Cargo requires the following tools and packages to build:
+## Typographic replacements
 
-* `cargo` and `rustc`
-* A C compiler [for your platform](https://github.com/rust-lang/cc-rs#compile-time-requirements)
-* `git` (to clone this repository)
+Enable typographer option to see result.
 
-**Other requirements:**
+(c) (C) (r) (R) (tm) (TM) (p) (P) +-
 
-The following are optional based on your platform and needs.
+test.. test... test..... test?..... test!....
 
-* `pkg-config` — This is used to help locate system packages, such as `libssl` headers/libraries. This may not be required in all cases, such as using vendored OpenSSL, or on Windows.
-* OpenSSL — Only needed on Unix-like systems and only if the `vendored-openssl` Cargo feature is not used.
+!!!!!! ???? ,,  -- ---
 
-  This requires the development headers, which can be obtained from the `libssl-dev` package on Ubuntu or `openssl-devel` with apk or yum or the `openssl` package from Homebrew on macOS.
+"Smartypants, double quotes" and 'single quotes'
 
-  If using the `vendored-openssl` Cargo feature, then a static copy of OpenSSL will be built from source instead of using the system OpenSSL.
-  This may require additional tools such as `perl` and `make`.
 
-  On macOS, common installation directories from Homebrew, MacPorts, or pkgsrc will be checked. Otherwise it will fall back to `pkg-config`.
+## Emphasis
 
-  On Windows, the system-provided Schannel will be used instead.
+**This is bold text**
 
-  LibreSSL is also supported.
+__This is bold text__
 
-**Optional system libraries:**
+*This is italic text*
 
-The build will automatically use vendored versions of the following libraries. However, if they are provided by the system and can be found with `pkg-config`, then the system libraries will be used instead:
+_This is italic text_
 
-* [`libcurl`](https://curl.se/libcurl/) — Used for network transfers.
-* [`libgit2`](https://libgit2.org/) — Used for fetching git dependencies.
-* [`libssh2`](https://www.libssh2.org/) — Used for SSH access to git repositories.
-* [`libz`](https://zlib.net/) (aka zlib) — Used for data compression.
+~~Strikethrough~~
 
-It is recommended to use the vendored versions as they are the versions that are tested to work with Cargo.
 
-### Compiling
+## Blockquotes
 
-First, you'll want to check out this repository
+
+> Blockquotes can also be nested...
+>> ...by using additional greater-than signs right next to each other...
+> > > ...or with spaces between arrows.
+
+
+## Lists
+
+Unordered
+
++ Create a list by starting a line with `+`, `-`, or `*`
++ Sub-lists are made by indenting 2 spaces:
+  - Marker character change forces new list start:
+    * Ac tristique libero volutpat at
+    + Facilisis in pretium nisl aliquet
+    - Nulla volutpat aliquam velit
++ Very easy!
+
+Ordered
+
+1. Lorem ipsum dolor sit amet
+2. Consectetur adipiscing elit
+3. Integer molestie lorem at massa
+
+
+1. You can use sequential numbers...
+1. ...or keep all the numbers as `1.`
+
+Start numbering with offset:
+
+57. foo
+1. bar
+
+
+## Code
+
+Inline `code`
+
+Indented code
+
+    // Some comments
+    line 1 of code
+    line 2 of code
+    line 3 of code
+
+
+Block code "fences"
 
 ```
-git clone https://github.com/rust-lang/cargo.git
-cd cargo
+Sample text here...
 ```
 
-With `cargo` already installed, you can simply run:
+Syntax highlighting
 
+``` js
+var foo = function (bar) {
+  return bar++;
+};
+
+console.log(foo(5));
 ```
-cargo build --release
-```
 
-## Adding new subcommands to Cargo
+## Tables
 
-Cargo is designed to be extensible with new subcommands without having to modify
-Cargo itself. See [the Wiki page][third-party-subcommands] for more details and
-a list of known community-developed subcommands.
+| Option | Description |
+| ------ | ----------- |
+| data   | path to data files to supply the data that will be passed into templates. |
+| engine | engine to be used for processing templates. Handlebars is the default. |
+| ext    | extension to be used for dest files. |
 
-[third-party-subcommands]: https://github.com/rust-lang/cargo/wiki/Third-party-cargo-subcommands
+Right aligned columns
+
+| Option | Description |
+| ------:| -----------:|
+| data   | path to data files to supply the data that will be passed into templates. |
+| engine | engine to be used for processing templates. Handlebars is the default. |
+| ext    | extension to be used for dest files. |
 
 
-## Releases
+## Links
 
-Cargo releases coincide with Rust releases.
-High level release notes are available as part of [Rust's release notes][rel].
-Detailed release notes are available in this repo at [CHANGELOG.md].
+[link text](http://dev.nodeca.com)
 
-[rel]: https://github.com/rust-lang/rust/blob/master/RELEASES.md
-[CHANGELOG.md]: CHANGELOG.md
+[link with title](http://nodeca.github.io/pica/demo/ "title text!")
 
-## Reporting issues
+Autoconverted link https://github.com/nodeca/pica (enable linkify to see)
 
-Found a bug? We'd love to know about it!
 
-Please report all issues on the GitHub [issue tracker][issues].
+## Images
 
-[issues]: https://github.com/rust-lang/cargo/issues
+![Minion](https://octodex.github.com/images/minion.png)
+![Stormtroopocat](https://octodex.github.com/images/stormtroopocat.jpg "The Stormtroopocat")
 
-## Contributing
+Like links, Images also have a footnote style syntax
 
-See the **[Cargo Contributor Guide]** for a complete introduction
-to contributing to Cargo.
+![Alt text][id]
 
-## License
+With a reference later in the document defining the URL location:
 
-Cargo is primarily distributed under the terms of both the MIT license
-and the Apache License (Version 2.0).
+[id]: https://octodex.github.com/images/dojocat.jpg  "The Dojocat"
 
-See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
 
-### Third party software
+## Plugins
 
-This product includes software developed by the OpenSSL Project
-for use in the OpenSSL Toolkit (https://www.openssl.org/).
+The killer feature of `markdown-it` is very effective support of
+[syntax plugins](https://www.npmjs.org/browse/keyword/markdown-it-plugin).
 
-In binary form, this product includes software that is licensed under the
-terms of the GNU General Public License, version 2, with a linking exception,
-which can be obtained from the [upstream repository][1].
 
-See [LICENSE-THIRD-PARTY](LICENSE-THIRD-PARTY) for details.
+### [Emojies](https://github.com/markdown-it/markdown-it-emoji)
 
-[1]: https://github.com/libgit2/libgit2
-::
+> Classic markup: :wink: :cry: :laughing: :yum:
+>
+> Shortcuts (emoticons): :-) :-( 8-) ;)
+
+see [how to change output](https://github.com/markdown-it/markdown-it-emoji#change-output) with twemoji.
+
+
+### [Subscript](https://github.com/markdown-it/markdown-it-sub) / [Superscript](https://github.com/markdown-it/markdown-it-sup)
+
+- 19^th^
+- H~2~O
+
+
+### [\<ins>](https://github.com/markdown-it/markdown-it-ins)
+
+++Inserted text++
+
+
+### [\<mark>](https://github.com/markdown-it/markdown-it-mark)
+
+==Marked text==
+
+
+### [Footnotes](https://github.com/markdown-it/markdown-it-footnote)
+
+Footnote 1 link[^first].
+
+Footnote 2 link[^second].
+
+Inline footnote^[Text of inline footnote] definition.
+
+Duplicated footnote reference[^second].
+
+[^first]: Footnote **can have markup**
+
+    and multiple paragraphs.
+
+[^second]: Footnote text.
+
+
+### [Definition lists](https://github.com/markdown-it/markdown-it-deflist)
+
+Term 1
+
+:   Definition 1
+with lazy continuation.
+
+Term 2 with *inline markup*
+
+:   Definition 2
+
+        { some code, part of Definition 2 }
+
+    Third paragraph of definition 2.
+
+_Compact style:_
+
+Term 1
+  ~ Definition 1
+
+Term 2
+  ~ Definition 2a
+  ~ Definition 2b
+
+
+### [Abbreviations](https://github.com/markdown-it/markdown-it-abbr)
+
+This is HTML abbreviation example.
+
+It converts "HTML", but keep intact partial entries like "xxxHTMLyyy" and so on.
+
+*[HTML]: Hyper Text Markup Language
+
+### [Custom containers](https://github.com/markdown-it/markdown-it-container)
+
+::: warning
+*here be dragons*
+:::
+:
